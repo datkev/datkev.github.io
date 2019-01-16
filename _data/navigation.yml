@@ -4,10 +4,60 @@ header:
       zh:       归档
       zh-Hans:  归档
       zh-Hant:  歸檔
-    url:        /archive.html
+    url:        /archive
+  - titles:
+      en:       Wikis
+    url:        /wikis/ctf/encoding
+  - titles:
+      en:       CTFs
+    url:        /ctfs
   - titles:
       en:       About
       zh:       关于
       zh-Hans:  关于
       zh-Hant:  關於
-    url:        /about.html
+    url:        /about
+    
+ctf:
+  - title:      Encoding
+    children:
+      - title:  All
+        url:    /wikis/ctf/encoding
+  - title:      File Transfer
+    children:
+      - title:  Windows
+        url:    /wikis/ctf/windows-file-transfer
+      - title:  Nix
+        url:    /wikis/ctf/nix-file-transfer
+  - title:      Forensics
+    children:
+      - title:  All
+        url:    /wikis/ctf/forensics
+  - title:      Mimikatz
+    children:
+      - title:  All
+        url:    /wikis/ctf/mimikatz
+  - title:      Password Cracking
+    children:
+      - title:  All
+        url:    /wikis/ctf/password-cracking
+  - title:      Privilege Escalation
+    children:
+      - title:  Windows
+        url:    /wikis/ctf/windows-privilege-escalation
+      - title:  Nix
+        url:    /wikis/ctf/nix-privilege-escalation
+  - title:      Recon
+    children:
+      - title:  Host Discovery
+        url:    /wikis/ctf/host-discovery
+      - title:  Port Scanning
+        url:    /wikis/ctf/port-scanning
+  - title:      Services
+    children:
+      - title:  All
+        url:    /wikis/ctf/services
+  - title:      Shell Manipulation
+    children:
+      - title:  All
+        url:    /wikis/ctf/shell-manipulation
