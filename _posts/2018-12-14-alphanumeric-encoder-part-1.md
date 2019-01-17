@@ -138,15 +138,15 @@ egghunter += "\x41\x41\x41\x41"         #some nops
 
 The code begins with eight <b>popad</b> instructions that align ESP to point to a memory address that is higher than the end of the encoded stub itself. 
 
-<img src="/assets/images/posts/alphanumeric-encoder-part-1/01.png" alt="" class="center" />
+<img src="/assets/images/posts/alphanumeric-encoder-part-1/01.png" alt="" class="center">
 
 As you can see, before execution of the <b>popad</b> instructions, <b>esp</b> points to <b>0012cd6c</b>. If we push instructions onto the stack at this address, we will be writing our egghunter to memory towards lower addressess since the stack grows towards <b>00000000</b>. When the stub finishes pushing our egghunter, the program counter will continue incrementing its address (growing towards higher memory) and thus will never actually end up executing the egghunter. To remedy this problem, we've prepended the <b>popad</b>s to the egghunter.
 
-<img src="/assets/images/posts/alphanumeric-encoder-part-1/02.png" alt="" class="center" />
+<img src="/assets/images/posts/alphanumeric-encoder-part-1/02.png" alt="" class="center">
 
 After our <b>popad</b> instructions, ESP now points to <b>0012ce6c</b>. If we push the decoded egghunter onto the stack at this location, we will begin writing to lower addresses starting from the last null byte highlighted below. The final egghunter will take up 32 bytes of space. Once the encoded stub finishes, the program counter will continue executing instructions and incrementing its address until it hits the first instruction of our egghunter. From there, our egghunter will be executed and the program will begin searching memory for the tag-appended shellcode we have stored somewhere else in our buffer. Below, we can see the decoded egghunter in memory beginning at an address that the program counter will naturally reach.
 
-<img src="/assets/images/posts/alphanumeric-encoder-part-1/03.png" alt="" class="center" />
+<img src="/assets/images/posts/alphanumeric-encoder-part-1/03.png" alt="" class="center">
 
 Let's analyze what's happening in each of these individual blocks of our encoded egghunter.
 
