@@ -74,7 +74,7 @@ If we look at the output above, we can see that the function will only return pa
 
 
 ### Translating Code
-If we check the <a href="https://github.com/gap-system/gap/blob/master/lib/combinat.gi" target="_blank">combinat.gi</a> file in the <b>lib</b> directory of the GAP repo, we can find function definition of <b>RestrictedPartitionsK</b> as shown below:
+If we check the <a href="https://github.com/gap-system/gap/blob/master/lib/combinat.gi" target="_blank">combinat.gi</a> file in the <b>lib</b> directory of the GAP repo, we can find the function definition of <b>RestrictedPartitionsK</b> as shown below:
 
 ```
 RestrictedPartitionsK := function ( n, set, m, k, part, i )
