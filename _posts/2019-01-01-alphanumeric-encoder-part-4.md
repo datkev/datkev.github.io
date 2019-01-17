@@ -1,7 +1,7 @@
 ---
 layout: article
 title: Building an Alphanumeric Encoder Part 4 - Testing the Encoder
-permalink: /page/building-an-alphanumeric-encoder-part-4.html
+permalink: /page/building-an-alphanumeric-encoder-part-4
 key: page-article-header-overlay-background-image-HB
 cover: /assets/images/posts/alphanumeric-encoder-part-4/cover.png
 header:

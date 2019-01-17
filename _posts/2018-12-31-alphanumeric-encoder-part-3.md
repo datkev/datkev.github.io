@@ -1,7 +1,7 @@
 ---
 layout: article
 title: Building an Alphanumeric Encoder Part 3 - Building the Encoder
-permalink: /page/building-an-alphanumeric-encoder-part-3.html
+permalink: /page/building-an-alphanumeric-encoder-part-3
 key: page-article-header-overlay-background-image-HB
 cover: /assets/images/posts/alphanumeric-encoder-part-3/cover.png
 header:
@@ -147,7 +147,7 @@ def check_args(args):
 ```
 
 By specifying the <b>-h</b> flag, the argparse help menu should look similar to the output below:
-<img src="/assets/images/posts/alphanumeric-encoder-part-3/01.png" alt="pe-header-format" class="center">
+<img src="/assets/images/posts/alphanumeric-encoder-part-3/01.png" alt="" class="center">
 
 ### Formatting the Egghunter
 
