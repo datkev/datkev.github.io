@@ -5,7 +5,7 @@ permalink: /wikis/ctf/encoding
 aside:
     toc: true
 sidebar:
-    nav: ctf
+    nav: wikis
 ---
 
 

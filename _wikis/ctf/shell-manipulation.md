@@ -5,7 +5,7 @@ permalink: /wikis/ctf/shell-manipulation
 aside:
     toc: true
 sidebar:
-    nav: ctf
+    nav: wikis
 ---
 
 

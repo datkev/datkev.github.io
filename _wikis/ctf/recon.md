@@ -1,12 +1,42 @@
 ---
 layout: article
-title: Host Discovery
-permalink: /wikis/ctf/host-discovery
+title: Recon
+permalink: /wikis/ctf/recon
 aside:
     toc: true
 sidebar:
-    nav: ctf
+    nav: wikis
 ---
+
+## Port Scanning
+
+<b>nmap aggressive, normal output</b> 
+```bash
+nmap -A <target-ip> -oN <output-file> 
+```
+ 
+<b>nmap default scripts and service scan, normal, xml, grepable output</b>
+```bash
+nmap -sC -sv <target-ip> -oA  <output-file> 
+```
+
+<b>nmap UDP scan with SYN</b>
+```bash
+nmap -sU -sS <target-ip> 
+```
+ 
+<b>unicornscan, log to file</b> 
+```bash
+unicornscan -Iv <target-ip>:a -w <output-file> 
+```
+
+<b>port probing with netcat/b>
+```bash
+nc -nvv -w 1 -z <target-ip> 1-4000 &> nc-port-scan 
+```
+
+
+## Host Discovery
 
 <b>ICMP Ping Sweep</b> 
 ```bash

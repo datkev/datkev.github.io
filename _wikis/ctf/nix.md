@@ -1,13 +1,23 @@
 ---
 layout: article
-title: Nix Privilege Escalation
-permalink: /wikis/ctf/nix-privilege-escalation
+title: Nix
+permalink: /wikis/ctf/nix
 aside:
     toc: true
 sidebar:
-    nav: ctf
+    nav: wikis
 ---
 
+## File Transfer
+
+Grab all files from directory
+```bash
+wget -r -nH --no-parent http://<host-ip>/<dir>/ --reject="index.html*" -q
+```
+
+
+
+## Privilege Escalation
 
 Exploitable binaries<br>
 [https://gtfobins.github.io/](https://gtfobins.github.io/)

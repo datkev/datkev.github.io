@@ -5,7 +5,7 @@ permalink: /wikis/ctf/services
 aside:
     toc: true
 sidebar:
-    nav: ctf
+    nav: wikis
 ---
 
 

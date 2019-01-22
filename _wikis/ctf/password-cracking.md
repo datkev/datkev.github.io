@@ -5,7 +5,7 @@ permalink: /wikis/ctf/password-cracking
 aside:
     toc: true
 sidebar:
-    nav: ctf
+    nav: wikis
 ---
 
 John the Ripper

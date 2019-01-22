@@ -5,8 +5,13 @@ permalink: /wikis/ctf/forensics
 aside:
     toc: true
 sidebar:
-    nav: ctf
+    nav: wikis
 ---
+
+Check executable properties with <a href = "https://github.com/slimm609/checksec.sh" target="_blank">checksec</a>
+```bash
+checksec --file <file>
+```
 
 Extract metadata from file
 ```bash
