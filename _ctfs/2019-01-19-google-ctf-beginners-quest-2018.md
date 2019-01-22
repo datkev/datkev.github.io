@@ -13,6 +13,8 @@ Walk-through of Google CTF: Beginners Quest 2018
 
 ## Overview
 
+Before we begin, consider visiting GynvaelEN and his <a href="https://www.youtube.com/channel/UCCkVMojdBWS-JtH7TliWkVg" target="_blank">YouTube channel</a>. He has a full livestream of the entire Beginners Quest series. If you're looking for <i>real</i> knowledge bombs, please seek out his videos and consider subscribing. Many of the strategies below are adapted from the explanations he provides in his livestream.
+
 In 2016, Google began hosting annual CTF competitions to grow the security community, engage security hobbyists and professionals globally, and encourage the community to help protect web users.
 
 Google CTF 2018 included a beginner-friendly quest line that provided newer community members a lighter exposure to the field of security.
@@ -1574,8 +1576,6 @@ CTF{Two_PasSworDz_Better_th4n_1_k?}
 <br>
 <br>
 ## Admin UI 3 - pwn-re
-
-Before we start this one, here is a quick shout-out to GynvaelEN and his <a href="https://www.youtube.com/channel/UCCkVMojdBWS-JtH7TliWkVg" target="_blank">YouTube channel</a>. He has a full livestream of the entire Beginners Quest series. If you're in seek of the <i>real</i> knowledge bombs, please seek out his videos and consider subscribing. Many of these challenge solutions are adapted from the solutions and explanations he provides in his livestream.
 
 <img src="/assets/images/ctfs/google-ctf-beginners-quest-2018/74.png" alt="" class="center">
 <br>

@@ -11,9 +11,9 @@ sidebar:
 
 Data exploration, analysis, and visualization for tabular data.
 
-Many lines are taken directly from <a href="https://github.com/justmarkham/python-data-science-workshop.git" target="_blank">https://github.com/justmarkham/python-data-science-workshop.git</a>
+See <a href="https://github.com/justmarkham/python-data-science-workshop.git" target="_blank">https://github.com/justmarkham/python-data-science-workshop.git</a> for original code.
 
-### Basics
+## Basics
 ```py
 # imports
 import pandas as pd
@@ -26,7 +26,7 @@ Pandas Basics: Reading Files, Summarizing, Handling Missing Values, Filtering, S
 
 # read in the CSV file
 drinks = pd.read_csv('drinks.csv')
-drinks = pd.read_csv('https://raw.githubusercontent.com/justmarkham/python-data-science-workshop/master/drinks.csv')
+drinks = pd.read_csv('https://some-link.csv')
 type(drinks)
 
 # examine the data
@@ -74,7 +74,7 @@ drinks.sort_index(by='beer_servings').tail(6)
 drinks.beer_servings[drinks.continent=='NA'].mean()
 ```
 
-### Split, Apply, Combine
+## Split, Apply, Combine
 
 Apply a function to a DataFrame that is split by different types of keys.
 
@@ -87,7 +87,7 @@ drinks.groupby('continent').continent.count()
 drinks.continent.value_counts()
 ```
 
-### Lambda Functions
+## Lambda Functions
 
 Lambda Functions are anonymous functions
 
@@ -105,12 +105,8 @@ print drinks.groupby('continent').total_servings.max()
 drinks.groupby('continent').total_servings.apply(lambda x: x.max()-x.min())    # range
 ```
 
-### Plotting
+## Plotting
 ```py
-'''
-Plotting
-'''
-
 # bar plot of number of countries in each continent
 drinks.continent.value_counts().plot(kind='bar', title='Countries per Continent')
 plt.xlabel('Continent')

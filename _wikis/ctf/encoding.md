@@ -9,6 +9,8 @@ sidebar:
 ---
 
 
+<a href="https://gchq.github.io/CyberChef/" target="_blank">CyberChef</a> - All-in-one tool
+
 Base64<br>
 -n (no trailing newline), -e (interpret blackslash escapes)  
 ```bash
