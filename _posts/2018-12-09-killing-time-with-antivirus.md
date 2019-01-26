@@ -3,7 +3,7 @@ layout: article
 title: Killing Time with Antivirus - Modern AV Bypass
 permalink: /page/killing-time-with-antivirus
 key: page-article-header-overlay-background-image-HB
-cover: /assets/images/posts/killing-time-with-antivirus/cover.png
+cover: /assets/images/thumbs/killing-time-with-antivirus.png
 header:
   theme: dark
   background: 'linear-gradient(135deg, rgb(15, 32, 39), rgb(44, 83, 100))'

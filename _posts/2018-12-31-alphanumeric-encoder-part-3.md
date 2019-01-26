@@ -3,7 +3,7 @@ layout: article
 title: Building an Alphanumeric Encoder Part 3 - Building the Encoder
 permalink: /page/building-an-alphanumeric-encoder-part-3
 key: page-article-header-overlay-background-image-HB
-cover: /assets/images/posts/alphanumeric-encoder-part-3/cover.png
+cover: /assets/images/thumbs/alphanumeric-encoder-part-3.png
 header:
   theme: dark
   background: 'linear-gradient(135deg, rgb(15, 32, 39), rgb(44, 83, 100))'

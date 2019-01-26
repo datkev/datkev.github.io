@@ -3,7 +3,7 @@ layout: article
 title: Building an Alphanumeric Encoder Part 4 - Testing the Encoder
 permalink: /page/building-an-alphanumeric-encoder-part-4
 key: page-article-header-overlay-background-image-HB
-cover: /assets/images/posts/alphanumeric-encoder-part-4/cover.png
+cover: /assets/images/thumbs/alphanumeric-encoder-part-4.png
 header:
   theme: dark
   background: 'linear-gradient(135deg, rgb(15, 32, 39), rgb(44, 83, 100))'

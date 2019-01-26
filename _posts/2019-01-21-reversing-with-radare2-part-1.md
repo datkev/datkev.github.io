@@ -3,7 +3,7 @@ layout: article
 title: Reversing with Radare2 - Google CTF 2018 - Part 1
 permalink: /page/reversing-with-radare2-part-1
 key: page-article-header-overlay-background-image-HB
-cover: /assets/images/posts/reversing-with-radare2-part-1/cover.png
+cover: /assets/images/thumbs/reversing-with-radare2-part-1.png
 header:
   theme: dark
   background: 'linear-gradient(135deg, rgb(195, 55, 100), rgb(29, 38, 113))'

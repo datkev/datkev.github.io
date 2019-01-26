@@ -1954,3 +1954,130 @@ Admin MOTD is: CTF{m07d_1s_r3t_2_r34d_fl4g}
 <br>
 ### Solution
 <b>CTF{m07d_1s_r3t_2_r34d_fl4g}</b>
+
+
+
+<br>
+<br>
+## Gatekeeper - re
+
+<img src="/assets/images/ctfs/google-ctf-beginners-quest-2018/87.png" alt="" class="center">
+<br>
+<br>
+<img src="/assets/images/ctfs/google-ctf-beginners-quest-2018/88.png" alt="" class="center">
+
+Once again, we've got ourselves a binary to investigate. 
+
+```bash
+root@khost:/tmp/google-ctf# file gatekeeper 
+gatekeeper: ELF 64-bit LSB shared object, x86-64, version 1 (SYSV), dynamically linked, interpreter /lib64/ld-linux-x86-64.so.2, for GNU/Linux 2.6.32, BuildID[sha1]=a89e770cbffa17111e4fddb346215ca04e794af2, not stripped 
+
+```
+
+Using <code>radare2</code>, we'll attempt to disassemble the file and put our reverse engineering skills to work. First, we want to check out what happens in the <b>main</b> function through the graph view.
+
+```bash
+root@khost:/tmp/google-ctf# r2 -d gatekeeper
+Process with PID 2731 started... 
+= attach 2731 2731 
+bin.baddr 0x55e5a3bc5000 
+Using 0x55e5a3bc5000 
+asm.bits 64 
+
+[0x7f0b76630090]> aaa 
+[x] Analyze all flags starting with sym. and entry0 (aa) 
+[x] Analyze len bytes of instructions for references (aar) 
+[x] Analyze function calls (aac) 
+[x] Use -AA or aaaa to perform additional experimental analysis. 
+[x] Constructing a function name for fcn.* and sym.func.* functions (aan) 
+= attach 2731 2731 
+2731 
+
+[0x7f0b76630090]> vv 
+
+[0x7f668c80f090]> s 0x560a88b2b9b7 
+
+[0x560a88b2b9b7]> VV
+```
+
+<img src="/assets/images/ctfs/google-ctf-beginners-quest-2018/89.png" alt="" class="center">
+<br>
+<br>
+<img src="/assets/images/ctfs/google-ctf-beginners-quest-2018/90.png" alt="" class="center">
+
+It seems like the program takes a username and password as parameters and checks them against two strings shown in the image above. Let's try these credentials and see what happens.
+
+```bash
+root@khost:/tmp/google-ctf# ./gatekeeper 0n3_W4rM zLl1ks_d4m_T0g_I 
+/===========================================================================\ 
+
+|               Gatekeeper - Access your PC from everywhere!                | 
+
++===========================================================================+ 
+~> Verifying.......ACCESS DENIED 
+~> Incorrect password 
+```
+
+It seems as though the password we entered was wrong, but the username was valid. To see what string our password is being compared to, we can try to set a breakpoint at the <code>strcmp</code> function before our password is validated. We'll first set a breakpoint at main and find the address of <code>strcmp</code>.
+
+
+```bash
+[0x7f65e7f60090]> db 0x55c034a7c9b7 
+
+[0x7f65e7f60090]> dc 
+hit breakpoint at: 55c034a7c9b7 
+
+[0x55c034a7c9b7]> Vpp
+```
+
+<img src="/assets/images/ctfs/google-ctf-beginners-quest-2018/91.png" alt="" class="center">
+
+The address we're looking for is <b>0x55c034a7cb57</b>. We set a breakpoint and execute the program until we hit our address.
+
+```bash
+[0x55c034a7caf1]> db 0x55c034a7cb57 
+
+[0x55c034a7caf1]> dc 
+child stopped with signal 28 
+[+] SIGNAL 28 errno=0 addr=0x00000000 code=128 ret=0 
+hit breakpoint at: 55c034a7c9b7 
+
+[0x55c034a7c9b7]> dc 
+/===========================================================================\ 
+
+|               Gatekeeper - Access your PC from everywhere!                | 
+
++===========================================================================+ 
+~> Verifying......hit breakpoint at: 55c034a7cb57 
+```
+
+Once we hit our address, we can dump the arguments that have been passed to <code>strcmp</code> via <b>rdi</b> and <b>rsi</b>.
+
+```bash
+[0x55c034a7cb57]> ps @ rdi 
+I_g0T_m4d_sk1lLz 
+
+[0x55c034a7cb57]> ps @ rsi 
+zLl1ks_d4m_T0g_I 
+```
+
+It looks like our password is being compared to a reversed version of itself. Let's try using the reversed password instead.
+
+```bash
+root@khost:/tmp/google-ctf# ./gatekeeper 0n3_W4rM I_g0T_m4d_sk1lLz 
+/===========================================================================\ 
+
+|               Gatekeeper - Access your PC from everywhere!                | 
+
++===========================================================================+ 
+~> Verifying.......Correct! 
+
+Welcome back! 
+CTF{I_g0T_m4d_sk1lLz}
+```
+
+
+<br>
+<br>
+### Solution
+<b>CTF{I_g0T_m4d_sk1lLz}</b>
