@@ -1825,7 +1825,7 @@ CTF{c0d3ExEc?W411_pL4y3d}
 <br>
 <img src="/assets/images/ctfs/google-ctf-beginners-quest-2018/83.png" alt="" class="center">
 
-Prepare your wallets, because Google-Haus bundles all the buzzwords in one single device. Let's check out what the Google assistant has to offer.
+Apparently, the Google-Haus does everything. Let's see what is has to offer.
 
 ```bash
 root@kali:~/google-ctf-2018/message-of-the-day# nc motd.ctfcompetition.com 1337
