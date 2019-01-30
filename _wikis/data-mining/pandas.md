@@ -14,15 +14,14 @@ Data exploration, analysis, and visualization for tabular data.
 See <a href="https://github.com/justmarkham/python-data-science-workshop.git" target="_blank">https://github.com/justmarkham/python-data-science-workshop.git</a> for original code.
 
 ## Basics
+
+Pandas Basics: Reading Files, Summarizing, Handling Missing Values, Filtering, and Sorting
+
 ```py
 # imports
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-
-'''
-Pandas Basics: Reading Files, Summarizing, Handling Missing Values, Filtering, Sorting
-'''
 
 # read in the CSV file
 drinks = pd.read_csv('../directory/drinks.csv')
@@ -56,8 +55,9 @@ type(drinks.continent)
 
 # summarizing a non-numeric column
 drinks.continent.describe()
-drinks.continent.value_counts()                 # excludes missing values
-drinks.continent.value_counts(dropna=False)     # includes missing values
+drinks.continent.value_counts()                         # excludes missing values
+drinks.continent.value_counts(dropna=False)             # includes missing values
+dataset['laebl'].value_counts(normalize=True).head()    # gives percentages
 
 # selecting multiple columns
 drinks[['country', 'beer_servings']]
@@ -85,6 +85,7 @@ drinks[drinks.wine_servings > drinks.beer_servings]
 drinks[(drinks.wine_servings > 300) & (drinks.total_litres_of_pure_alcohol > 12)]
 drinks.sort_index(by='beer_servings').tail(6)
 drinks.beer_servings[drinks.continent=='NA'].mean()
+smaller_dataset.groupby('label').duration.mean().sort_values(ascending=False).plot(kind='bar')
 ```
 
 ## Split, Apply, Combine

