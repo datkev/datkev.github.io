@@ -17,7 +17,7 @@ nmap -A <target-ip> -oN <output-file>
  
 <b>nmap default scripts and service scan, normal, xml, grepable output</b>
 ```bash
-nmap -sC -sv <target-ip> -oA  <output-file> 
+nmap -sC -sV <target-ip> -oA  <output-file> 
 ```
 
 <b>nmap UDP scan with SYN</b>
