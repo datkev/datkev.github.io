@@ -34,3 +34,8 @@ Mounting a filesystem
 mount <block_device> </mount/point>
 ```
 
+Volatility for memory dumps
+```bash
+vol.py --profile=<profile> -f </path/to/memory.dmp> psscan > vol_psccan.text
+vol.py --profile=<profile> -f </path/to/memory.dmp> apihooks > vol_apihooks.text
+```

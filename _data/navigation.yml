@@ -41,3 +41,11 @@ wikis:
     children:
       - title:  Pandas
         url:    /wikis/data-mining/pandas
+  - title:      Misc
+    children:
+      - title:  Conda
+        url:    /wikis/misc/conda
+      - title:  General
+        url:    /wikis/misc/general
+      - title:  Git
+        url:    /wikis/misc/git
