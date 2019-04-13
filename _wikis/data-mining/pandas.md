@@ -57,7 +57,7 @@ type(drinks.continent)
 drinks.continent.describe()
 drinks.continent.value_counts()                         # excludes missing values
 drinks.continent.value_counts(dropna=False)             # includes missing values
-dataset['laebl'].value_counts(normalize=True).head()    # gives percentages
+dataset['label'].value_counts(normalize=True).head()    # gives percentages
 
 # selecting multiple columns
 drinks[['country', 'beer_servings']]
