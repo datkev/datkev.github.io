@@ -15,6 +15,16 @@ Grab all files from directory
 wget -r -nH --no-parent http://<host-ip>/<dir>/ --reject="index.html*" -q
 ```
 
+Transfer binary by base64 encoding (-w0 to omit line-wrapping)<br>
+On remote machine:
+```bash
+base64 -w0 <file>
+```
+Copy and paste contents into a new file on local machine. <br>
+Then, on local machine:
+```bash
+base64 -d <file> > <newfile>
+```
 
 
 ## Privilege Escalation

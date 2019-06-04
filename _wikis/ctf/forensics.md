@@ -34,6 +34,11 @@ Mounting a filesystem
 mount <block_device> </mount/point>
 ```
 
+Steganography extraction using a password
+```bash
+steghide extract -sf <infile> -p <password> -xf <outfile>
+```
+
 Volatility for memory dumps
 ```bash
 vol.py --profile=<profile> -f </path/to/memory.dmp> psscan > vol_psccan.text
