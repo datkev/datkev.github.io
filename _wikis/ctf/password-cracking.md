@@ -28,6 +28,16 @@ SSH bruteforce
 ```bash
 hydra -e nsr -l <user> -P <wordlist> <target-ip> ssh -t 4 
 ```
+
+Hashcat
+Query example hashes
+```bash
+hashcat --example-hashes
+```
+
+```bash
+hashcat -m <mode> <hash_file> <wordlist_file>
+```
  
 Online MD5 cracker<br>
 <a href="https://hashkiller.co.uk/md5-decrypter.aspx" target="_blank">https://hashkiller.co.uk/md5-decrypter.aspx<a>

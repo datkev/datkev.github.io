@@ -62,6 +62,10 @@ Sends &lt;host&gt;:&lt;host port&gt; to &lt;bind port&gt; on &lt;server&gt;
 ```bash
 ssh -R <bind port>:<host>:<host port> <user>@<server> 
 ```
+
+Use SSH packages to identify distros<br>
+<a href="https://launchpad.net" target="_blank">https://launchpad.net<a>
+
  
 
 ## SMTP 
@@ -127,6 +131,43 @@ sqsh -S <target-ip> -U sa -P password
 
 
 ## SMB 
+No password prompt and list shares
 ```bash
-smbclient //server/service -U "guest"
+smbclient -N -L //server
+```
+
+No password prompt, specific share
+```bash
+smbclient -N //server/shares
+```
+
+Guest authentication, specific share
+```bash
+smbclient //server/share -U "guest"
+```
+
+List shares
+```bash
+smbmap -H <host> -u anonymous
+```
+
+Mount share
+```bash
+mount -t cifs //server/share /mount-dir
+```
+
+Check share information (owner and permissions)
+```bash
+smbcacls -N //server/share /share-folder
+```
+
+## LDAP
+Simple authentication LDAP search
+```bash
+ldapsearch -x -h <host> -s base namingcontexts
+```
+
+Authenticated LDAP search
+```bash
+ldapsearch -x -h <host> -D "<user>@<host>" -w "<password>" -b "dc=<dc>,dc=<local>"
 ```

@@ -18,3 +18,8 @@ Zip and exclude file extensions
 zip -r <zip-folder-name> dir1/ dir2/ dir3/ -x "*.ext1" -x "*.ext2" -x "*.ext3"
 ```
 
+## Python
+
+strftime for formatting time in Python
+<a href="http://strftime.org/" target="_blank">http://strftime.org/</a>
+

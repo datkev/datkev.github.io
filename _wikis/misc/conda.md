@@ -13,6 +13,11 @@ Conda Environments
 
 ## Basics
 
+Create emtpy environment
+```bash
+conda create -n <name> python=x.x
+```
+
 Create environment from environment file
 ```bash
 conda env create --file=<env-file>
