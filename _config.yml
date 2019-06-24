@@ -215,6 +215,7 @@ collections:
     output: true
 
 defaults:
+  ## Home
   - scope:
       path: ""
       type: posts
@@ -225,6 +226,7 @@ defaults:
       show_edit_on_github: true
       show_subscribe: true
       pageview: true
+  ## CTFS
   - scope:
       path: "/ctfs"
       type: posts

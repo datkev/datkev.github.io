@@ -64,7 +64,7 @@ ssh -R <bind port>:<host>:<host port> <user>@<server>
 ```
 
 Use SSH packages to identify distros<br>
-<a href="https://launchpad.net" target="_blank">https://launchpad.net<a>
+<a href="https://launchpad.net" target="_blank">https://launchpad.net</a>
 
  
 
@@ -81,6 +81,10 @@ MAIL FROM: <user>@<domain.com>
 RCPT TO: <user>@<domain.com> 
 ```
  
+ Spin up SMTP server
+ ```
+python -m smtpd -n -c DebuggingServer :25
+ ```
 
 
 ## HTTP 

@@ -49,4 +49,6 @@ wikis:
         url:    /wikis/misc/general
       - title:  Git
         url:    /wikis/misc/git
+      - title:  Security
+        url:    /wikis/misc/security
 
