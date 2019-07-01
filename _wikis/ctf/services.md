@@ -153,6 +153,7 @@ smbclient //server/share -U "guest"
 List shares
 ```bash
 smbmap -H <host> -u anonymous
+smbmap -H <host> -u anonymous -d <domain>
 ```
 
 Mount share
@@ -164,6 +165,14 @@ Check share information (owner and permissions)
 ```bash
 smbcacls -N //server/share /share-folder
 ```
+
+## SNMP
+
+SNMP protocol enumeration
+```
+snmp-check <target-ip>
+```
+
 
 ## LDAP
 Simple authentication LDAP search
