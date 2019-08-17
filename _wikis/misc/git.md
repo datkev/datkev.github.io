@@ -147,7 +147,7 @@ git reset --hard <commit>
 
 ## git rebase
 
-Interactively rebase current branch onto <base>. Launches editor to enter
+Interactively rebase current branch onto another. Launches editor to enter
 commands for how each commit will be transferred to the new base.
 ```bash
 git rebase -i <base>
